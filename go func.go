@@ -33,18 +33,21 @@ func selectRandomWord(difficulty string) string {
 			if len(wordsHard) == 0 {
 				fmt.Println("This difficulty does not have any valid words! Check your words.txt file.")
 				difficultySelect = false
+				difficulty = input()
 			}
 		case "M":
 			difficultySelect = true
 			if len(wordsMedium) == 0 {
 				fmt.Println("This difficulty does not have any valid words! Check your words.txt file.")
 				difficultySelect = false
+				difficulty = input()
 			}
 		case "E":
 			difficultySelect = true
 			if len(wordsEasy) == 0 {
 				fmt.Println("This difficulty does not have any valid words! Check your words.txt file.")
 				difficultySelect = false
+				difficulty = input()
 			}
 		default:
 			fmt.Println("Invalid difficulty. Please input H, M, or E.")
