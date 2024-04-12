@@ -6,27 +6,16 @@ import (
 	"math/rand"
 	"os"
 	"strings"
+	"unicode"
 )
 
 func selectRandomWord(difficulty string) string {
-	for difficultySelect := false; !difficultySelect; {
-		switch difficulty {
-		case "H":
-			difficultySelect = true
-		case "M":
-			difficultySelect = true
-		case "E":
-			difficultySelect = true
-		default:
-			fmt.Println("Invalid difficulty. Please input H, M, or E.")
-			difficulty = input()
-		}
-	}
 	wordFile, _ := os.Open("words.txt")
 	wordScanner := bufio.NewScanner(wordFile)
 	var wordsEasy []string
 	var wordsMedium []string
 	var wordsHard []string
+	var wordList []string
 	//Sort words by difficulty
 	for wordScanner.Scan() {
 		if len(wordScanner.Text()) <= 5 {
@@ -37,16 +26,45 @@ func selectRandomWord(difficulty string) string {
 			wordsHard = append(wordsHard, wordScanner.Text())
 		}
 	}
+	for difficultySelect := false; !difficultySelect; {
+		switch difficulty {
+		case "H":
+			difficultySelect = true
+			if len(wordsHard) == 0 {
+				fmt.Println("This difficulty does not have any valid words! Check your words.txt file.")
+				difficultySelect = false
+			}
+		case "M":
+			difficultySelect = true
+			if len(wordsMedium) == 0 {
+				fmt.Println("This difficulty does not have any valid words! Check your words.txt file.")
+				difficultySelect = false
+			}
+		case "E":
+			difficultySelect = true
+			if len(wordsEasy) == 0 {
+				fmt.Println("This difficulty does not have any valid words! Check your words.txt file.")
+				difficultySelect = false
+			}
+		default:
+			fmt.Println("Invalid difficulty. Please input H, M, or E.")
+			difficulty = input()
+		}
+	}
 	wordFile.Close()
 	difficulties := map[string][]string{"H": wordsHard, "M": wordsMedium, "E": wordsEasy}
-	wordList := difficulties[difficulty]
+	wordList = difficulties[difficulty]
 	return strings.ToUpper(wordList[rand.Intn(len(wordList))])
 }
 
 func createBlank(word string) string {
 	var blank string
-	for i := 0; i < len(word); i++ {
-		blank = blank + "_ "
+	for _, v := range word {
+		if unicode.IsLetter(v) {
+			blank = blank + "_ "
+		} else {
+			blank = blank + string(v) + " "
+		}
 	}
 	return blank
 }
@@ -69,12 +87,22 @@ func guess(query, blank string, indexMap map[string][]int) (string, bool) {
 }
 
 func input() string {
-	fmt.Printf(">")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	return strings.ToUpper(scanner.Text())
+	var inputString string
+	for isValid := true; isValid; {
+		fmt.Printf(">")
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		if len(scanner.Text()) != 1 {
+			fmt.Println("Please only input a single alphabetic character.")
+		} else if !unicode.IsLetter(rune(scanner.Text()[0])) {
+			fmt.Println("Please only input a single alphabetic character.")
+		} else {
+			inputString = scanner.Text()
+			isValid = false
+		}
+	}
+	return strings.ToUpper(inputString)
 }
-
 func main() {
 	for mainLoop := true; mainLoop; {
 		//initialize game
